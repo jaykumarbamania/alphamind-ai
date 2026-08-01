@@ -1,51 +1,30 @@
 from openai import OpenAI
-from dotenv import load_dotenv
-import os
 
-load_dotenv()
+from app.config.settings import settings
 
-client = OpenAI(
-    api_key=os.getenv("OPENAI_API_KEY")
-)
 
-def analyze_stock(data):
-    
-    prompt=f"""
-You are a professional equity research analyst.
+class OpenAIService:
 
-Analyze this company.
+    def __init__(self):
+        self.client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-{data}
+    def analyze(self, stock: dict) -> str:
 
-Return
+        with open("app/prompts/equity_research.txt", encoding="utf-8") as f:
+            prompt = f.read()
 
-1 Executive Summary
+        response = self.client.chat.completions.create(
+            model=settings.MODEL,
+            messages=[
+                {
+                    "role": "system",
+                    "content": prompt,
+                },
+                {
+                    "role": "user",
+                    "content": str(stock),
+                },
+            ],
+        )
 
-2 Strengths
-
-3 Weaknesses
-
-4 Growth Drivers
-
-5 Risks
-
-6 Valuation Opinion
-
-7 Final Recommendation
-
-Give markdown response.
-"""
-
-    response=client.chat.completions.create(
-
-        model="gpt-4.1",
-
-        messages=[
-            {
-                "role":"user",
-                "content":prompt
-            }
-        ]
-    )
-
-    return response.choices[0].message.content
+        return response.choices[0].message.content

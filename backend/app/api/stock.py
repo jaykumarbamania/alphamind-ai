@@ -1,21 +1,17 @@
 from fastapi import APIRouter
 
 from app.models.stock import StockRequest
-from app.tools.yahoo_tool import get_stock_data
-from app.services.openai_service import analyze_stock
+from app.services.analysis_service import AnalysisService
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/api/v1/stocks",
+    tags=["Stocks"]
+)
+
+analysis_service = AnalysisService()
 
 
 @router.post("/analyze")
-def analyze_stock_request(request: StockRequest):
+def analyze_stock(request: StockRequest):
 
-    data = get_stock_data(request.ticker)
-
-    analysis = analyze_stock(data)
-
-    return {
-        "stock": data,
-        
-        "analysis": analysis
-    }
+    return analysis_service.analyze(request.ticker)
