@@ -1,105 +1,65 @@
-from typing import Dict
+from app.models.investment import InvestmentScore
 
 
 class ScoreEngine:
 
-    def calculate(self, stock: Dict) -> Dict:
+    def calculate(self, stock):
 
-        score = 0
+        score = InvestmentScore()
 
-        breakdown = {}
-
-        # -----------------------------
-        # Market Cap
-        # -----------------------------
-        market_cap = stock.get("market_cap")
-
-        if market_cap:
-
-            if market_cap > 200_000_000_000:
-                score += 15
-                breakdown["market_cap"] = 15
-
-            elif market_cap > 50_000_000_000:
-                score += 10
-                breakdown["market_cap"] = 10
-
-            else:
-                breakdown["market_cap"] = 5
-
-        # -----------------------------
-        # PE Ratio
-        # -----------------------------
         pe = stock.get("trailing_pe")
 
         if pe:
 
-            if 10 <= pe <= 30:
-                score += 20
-                breakdown["valuation"] = 20
+            if pe < 20:
+                score.valuation = 20
+
+            elif pe < 30:
+                score.valuation = 15
 
             elif pe < 40:
-                score += 15
-                breakdown["valuation"] = 15
+                score.valuation = 10
 
-            else:
-                breakdown["valuation"] = 5
+        if stock.get("free_cash_flow"):
 
-        # -----------------------------
-        # Profitability
-        # -----------------------------
-        net_income = stock.get("net_income")
+            if stock["free_cash_flow"] > 0:
+                score.cash_flow = 20
 
-        if net_income:
+        if stock.get("net_income"):
 
-            if net_income > 0:
-                score += 20
-                breakdown["profitability"] = 20
+            if stock["net_income"] > 0:
+                score.profitability += 15
 
-        # -----------------------------
-        # Cash Flow
-        # -----------------------------
-        fcf = stock.get("free_cash_flow")
+        if stock.get("market_cap"):
 
-        if fcf:
+            if stock["market_cap"] > 100_000_000_000:
+                score.financial_health += 15
 
-            if fcf > 0:
-                score += 20
-                breakdown["cashflow"] = 20
+        if stock.get("dividend_yield"):
 
-        # -----------------------------
-        # Debt
-        # -----------------------------
-        debt = stock.get("total_debt")
+            score.financial_health += 5
 
-        if debt is None:
+        score.total = (
+            score.growth
+            + score.profitability
+            + score.valuation
+            + score.cash_flow
+            + score.financial_health
+        )
 
-            score += 10
-            breakdown["debt"] = 10
+        if score.total >= 90:
+            score.recommendation = "STRONG BUY"
 
-        elif debt < 100_000_000_000:
+        elif score.total >= 80:
+            score.recommendation = "BUY"
 
-            score += 10
-            breakdown["debt"] = 10
+        elif score.total >= 70:
+            score.recommendation = "HOLD"
+
+        elif score.total >= 60:
+            score.recommendation = "WATCH"
 
         else:
+            score.recommendation = "AVOID"
 
-            score += 5
-            breakdown["debt"] = 5
-
-        # -----------------------------
-        # Dividend
-        # -----------------------------
-        dividend = stock.get("dividend_yield")
-
-        if dividend:
-
-            score += 15
-            breakdown["dividend"] = 15
-
-        return {
-
-            "overall_score": score,
-
-            "breakdown": breakdown
-        }
+        return score

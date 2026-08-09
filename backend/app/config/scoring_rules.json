@@ -1,0 +1,12 @@
+{
+  "valuation": {
+    "trailing_pe": {
+      "excellent": { "max": 20, "score": 20 },
+      "good": { "max": 30, "score": 15 },
+      "average": { "max": 40, "score": 10 }
+    }
+  },
+  "cash_flow": {
+    "free_cash_flow_positive": 20
+  }
+}

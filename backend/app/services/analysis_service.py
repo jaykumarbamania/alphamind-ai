@@ -103,7 +103,7 @@ class AnalysisService:
 
         score = self.score_engine.calculate(processed)
 
-        processed["investment_score"] = score
+        processed["investment_score"] = score.model_dump()
 
         analysis = self.openai.analyze(processed)
 
