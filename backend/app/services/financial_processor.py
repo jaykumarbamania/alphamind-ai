@@ -1,55 +1,54 @@
-from app.models.financial import CompanyFinancialData
+from app.domain.stock import Stock
 
 
 class FinancialProcessor:
 
-    def process(
-        self,
-        data: CompanyFinancialData,
-    ):
+    def process(self, data):
 
         stock = data.stock
-        financials = data.financials
 
-        return {
+        financial = data.financials
 
-            "company": stock.company,
+        return Stock(
 
-            "symbol": stock.symbol,
+            company=stock.company,
 
-            "sector": stock.sector,
+            symbol=stock.symbol,
 
-            "industry": stock.industry,
+            sector=stock.sector,
 
-            "market_cap": stock.market_cap,
+            industry=stock.industry,
 
-            "current_price": stock.current_price,
+            current_price=stock.current_price,
 
-            "trailing_pe": stock.trailing_pe,
+            market_cap=stock.market_cap,
 
-            "forward_pe": stock.forward_pe,
+            trailing_pe=stock.trailing_pe,
 
-            "dividend_yield": stock.dividend_yield,
+            forward_pe=stock.forward_pe,
 
-            "revenue": financials.revenue,
+            dividend_yield=stock.dividend_yield,
 
-            "gross_profit": financials.gross_profit,
+            revenue=financial.revenue,
 
-            "operating_income": financials.operating_income,
+            gross_profit=financial.gross_profit,
 
-            "net_income": financials.net_income,
+            operating_income=financial.operating_income,
 
-            "total_assets": financials.total_assets,
+            net_income=financial.net_income,
 
-            "total_liabilities": financials.total_liabilities,
+            total_assets=financial.total_assets,
 
-            "cash": financials.cash,
+            total_liabilities=financial.total_liabilities,
 
-            "total_debt": financials.total_debt,
+            cash=financial.cash,
 
-            "operating_cash_flow": financials.operating_cash_flow,
+            total_debt=financial.total_debt,
 
-            "free_cash_flow": financials.free_cash_flow,
+            operating_cash_flow=financial.operating_cash_flow,
 
-            "business_summary": stock.business_summary,
-        }
+            free_cash_flow=financial.free_cash_flow,
+
+            business_summary=stock.business_summary,
+
+        )
