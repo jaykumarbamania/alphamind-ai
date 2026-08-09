@@ -26,6 +26,8 @@
 
 import yfinance as yf
 
+from app.models.historical_financial import HistoricalFinancials
+
 from app.models.financial import (
     StockInfo,
     FinancialMetrics,
@@ -120,3 +122,58 @@ class YahooFinanceClient:
             return float(frame.loc[row_name].iloc[0])
         except Exception:
             return None
+
+    def get_historical_financials(
+        self,
+        ticker: str
+    ) -> HistoricalFinancials:
+
+        stock = yf.Ticker(ticker)
+
+        income = stock.income_stmt
+
+        cashflow = stock.cash_flow
+
+        return HistoricalFinancials(
+
+            revenue=self._get_series(
+                income,
+                "Total Revenue"
+            ),
+
+            operating_income=self._get_series(
+                income,
+                "Operating Income"
+            ),
+
+            net_income=self._get_series(
+                income,
+                "Net Income"
+            ),
+
+            free_cash_flow=self._get_series(
+                cashflow,
+                "Free Cash Flow"
+            )
+
+        )
+
+
+    @staticmethod
+    def _get_series(frame, row):
+
+        try:
+
+            return [
+
+                float(value)
+
+                for value in frame.loc[row].tolist()
+
+                if value is not None
+
+            ]
+
+        except Exception:
+
+            return []
