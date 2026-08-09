@@ -1,54 +1,108 @@
-from app.domain.stock import Stock
+from app.models.financial import CompanyFinancialData
+from app.services.financial_calculator import FinancialCalculator
 
 
 class FinancialProcessor:
 
-    def process(self, data):
+    def process(
+        self,
+        data: CompanyFinancialData,
+    ):
 
         stock = data.stock
-
         financial = data.financials
 
-        return Stock(
+        return {
 
-            company=stock.company,
+            "company": stock.company,
+            "symbol": stock.symbol,
+            "sector": stock.sector,
+            "industry": stock.industry,
 
-            symbol=stock.symbol,
+            "market_cap": stock.market_cap,
+            "current_price": stock.current_price,
 
-            sector=stock.sector,
+            "trailing_pe": stock.trailing_pe,
+            "forward_pe": stock.forward_pe,
 
-            industry=stock.industry,
+            "dividend_yield": stock.dividend_yield,
 
-            current_price=stock.current_price,
+            "revenue": financial.revenue,
+            "gross_profit": financial.gross_profit,
+            "operating_income": financial.operating_income,
+            "net_income": financial.net_income,
 
-            market_cap=stock.market_cap,
+            "total_assets": financial.total_assets,
+            "total_liabilities": financial.total_liabilities,
 
-            trailing_pe=stock.trailing_pe,
+            "cash": financial.cash,
+            "total_debt": financial.total_debt,
 
-            forward_pe=stock.forward_pe,
+            "operating_cash_flow": financial.operating_cash_flow,
+            "free_cash_flow": financial.free_cash_flow,
 
-            dividend_yield=stock.dividend_yield,
+            # Calculated Metrics
 
-            revenue=financial.revenue,
+            "gross_margin":
 
-            gross_profit=financial.gross_profit,
+                FinancialCalculator.gross_margin(
 
-            operating_income=financial.operating_income,
+                    financial.revenue,
 
-            net_income=financial.net_income,
+                    financial.gross_profit
 
-            total_assets=financial.total_assets,
+                ),
 
-            total_liabilities=financial.total_liabilities,
+            "operating_margin":
 
-            cash=financial.cash,
+                FinancialCalculator.operating_margin(
 
-            total_debt=financial.total_debt,
+                    financial.revenue,
 
-            operating_cash_flow=financial.operating_cash_flow,
+                    financial.operating_income
 
-            free_cash_flow=financial.free_cash_flow,
+                ),
 
-            business_summary=stock.business_summary,
+            "net_margin":
 
-        )
+                FinancialCalculator.net_margin(
+
+                    financial.revenue,
+
+                    financial.net_income
+
+                ),
+
+            "debt_ratio":
+
+                FinancialCalculator.debt_ratio(
+
+                    financial.total_assets,
+
+                    financial.total_liabilities
+
+                ),
+
+            "cash_to_debt_ratio":
+
+                FinancialCalculator.cash_to_debt_ratio(
+
+                    financial.cash,
+
+                    financial.total_debt
+
+                ),
+
+            "free_cash_flow_margin":
+
+                FinancialCalculator.free_cash_flow_margin(
+
+                    financial.revenue,
+
+                    financial.free_cash_flow
+
+                ),
+
+            "business_summary": stock.business_summary
+
+        }
