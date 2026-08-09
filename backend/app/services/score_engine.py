@@ -1,65 +1,98 @@
-from app.models.investment import InvestmentScore
+from app.domain.investment_result import InvestmentResult
 
 
 class ScoreEngine:
 
     def calculate(self, stock):
 
-        score = InvestmentScore()
+        score = 0
 
-        pe = stock.get("trailing_pe")
+        breakdown = {}
 
-        if pe:
+        # ------------------------
 
-            if pe < 20:
-                score.valuation = 20
+        if stock.market_cap:
 
-            elif pe < 30:
-                score.valuation = 15
+            if stock.market_cap > 200_000_000_000:
 
-            elif pe < 40:
-                score.valuation = 10
+                score += 15
 
-        if stock.get("free_cash_flow"):
+                breakdown["Market Cap"] = 15
 
-            if stock["free_cash_flow"] > 0:
-                score.cash_flow = 20
+        # ------------------------
 
-        if stock.get("net_income"):
+        if stock.trailing_pe:
 
-            if stock["net_income"] > 0:
-                score.profitability += 15
+            if stock.trailing_pe < 20:
 
-        if stock.get("market_cap"):
+                score += 20
 
-            if stock["market_cap"] > 100_000_000_000:
-                score.financial_health += 15
+                breakdown["Valuation"] = 20
 
-        if stock.get("dividend_yield"):
+            elif stock.trailing_pe < 30:
 
-            score.financial_health += 5
+                score += 15
 
-        score.total = (
-            score.growth
-            + score.profitability
-            + score.valuation
-            + score.cash_flow
-            + score.financial_health
-        )
+                breakdown["Valuation"] = 15
 
-        if score.total >= 90:
-            score.recommendation = "STRONG BUY"
+        # ------------------------
 
-        elif score.total >= 80:
-            score.recommendation = "BUY"
+        if stock.net_income:
 
-        elif score.total >= 70:
-            score.recommendation = "HOLD"
+            if stock.net_income > 0:
 
-        elif score.total >= 60:
-            score.recommendation = "WATCH"
+                score += 20
+
+                breakdown["Profitability"] = 20
+
+        # ------------------------
+
+        if stock.free_cash_flow:
+
+            if stock.free_cash_flow > 0:
+
+                score += 20
+
+                breakdown["Cash Flow"] = 20
+
+        # ------------------------
+
+        if stock.dividend_yield:
+
+            score += 5
+
+            breakdown["Dividend"] = 5
+
+        # ------------------------
+
+        recommendation = "WATCH"
+
+        if score >= 90:
+
+            recommendation = "STRONG BUY"
+
+        elif score >= 80:
+
+            recommendation = "BUY"
+
+        elif score >= 70:
+
+            recommendation = "HOLD"
+
+        elif score >= 60:
+
+            recommendation = "WATCH"
 
         else:
-            score.recommendation = "AVOID"
 
-        return score
+            recommendation = "AVOID"
+
+        return InvestmentResult(
+
+            overall_score=score,
+
+            recommendation=recommendation,
+
+            breakdown=breakdown
+
+        )
